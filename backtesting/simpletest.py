@@ -21,7 +21,7 @@ class SmaCross(Strategy):
             self.position.close()
 
 
-stock = "qqq"
+stock = "tlt"
 data = yf.Ticker(stock).history(period="max")
 
 bt = Backtest(data, SmaCross,

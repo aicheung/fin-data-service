@@ -10,18 +10,49 @@ class MacdCross(Strategy):
     slow = 26
     signal = 9
 
+    rsiPeriod = 14
+    rsiHigh = 70
+    rsiLow = 30
+
     def init(self):
         close = self.data.Close
         self.macd, self.macdsignal, self.macdhist = self.I(talib.MACD, close, self.fast, self.slow, self.signal)
+        self.rsi = self.I(talib.RSI, close, self.rsiPeriod)
+
+        self.rsiHighCrossed = False
+        self.rsiLowCrossed = False
+
+    def checkRsi(self):
+        """Check if RSI is above or below threashold, update variables if so"""
+        #High
+        if crossover(self.rsi, self.rsiHigh):
+            self.rsiHighCrossed = True
+            self.rsiLowCrossed = False
+        elif crossover(self.rsiHigh, self.rsi):
+            #cancel
+            self.rsiHighCrossed = False
+            self.rsiLowCrossed = False
+
+        #Low
+        if crossover(self.rsiLow, self.rsi):
+            self.rsiLowCrossed = True
+            self.rsiHighCrossed = False
+        elif crossover(self.rsi, self.rsiLow):
+            #cancel
+            self.rsiLowCrossed = False
+            self.rsiHighCrossed = False
 
     def next(self):
-        if crossover(self.macd, self.macdsignal):
+        self.checkRsi()
+
+        if crossover(self.macd, self.macdsignal) & self.rsiLowCrossed:
             self.buy()
-        elif crossover(self.macdsignal, self.macd):
+        elif crossover(self.macdsignal, self.macd) & self.rsiHighCrossed:
             self.position.close()
 
 
-stock = "spy"
+
+stock = "tlt"
 data = yf.Ticker(stock).history(period="max")
 
 bt = Backtest(data, MacdCross,
