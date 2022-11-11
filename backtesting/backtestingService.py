@@ -24,7 +24,6 @@ def runBacktest(backtestClass, optimisationParams):
         print("OPTIMISE START")
         stats, heatmap = bt.optimize(
             **optimisationParams,
-            constraint=lambda p: p.n1 < p.n2,
             maximize='Equity Final [$]',
             random_state=0,
             return_heatmap=True)

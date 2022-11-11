@@ -4,7 +4,7 @@ from backtesting.lib import crossover
 import talib
 import backtestingService
 
-class EmaCross(Strategy):
+class EmaCrossShort(Strategy):
     n1 = 20
     n2 = 250
 
@@ -15,13 +15,13 @@ class EmaCross(Strategy):
 
     def next(self):
         if crossover(self.ema1, self.ema2):
-            self.buy()
-        elif crossover(self.ema2, self.ema1):
             self.position.close()
+        elif crossover(self.ema2, self.ema1):
+            self.sell()
 
 if __name__ == "__main__":
     backtestingService.runBacktest(
-        backtestClass=EmaCross, 
+        backtestClass=EmaCrossShort, 
         optimisationParams={
             'n1':range(10, 60, 5),
             'n2':range(70, 300, 10),
